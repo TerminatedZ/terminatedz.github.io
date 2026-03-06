@@ -314,7 +314,7 @@
 
     document.getElementById('unblockerBtn').addEventListener('click', async () => {
       try {
-        const res = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://raw.githubusercontent.com/TerminatedZ/terminatedz.github.io/main/link.txt'));
+        const res = await fetch('https://github.com/TerminatedZ/terminatedz.github.io/raw/refs/heads/main/link.txt?t=' + Date.now(), {cache: 'no-store'});
         if (!res.ok) { showToast('Dead or No link detected'); return; }
         const text = (await res.text()).trim();
         if (!text || !text.startsWith('http')) { showToast('Dead or No link detected'); return; }
