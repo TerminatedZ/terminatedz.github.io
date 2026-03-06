@@ -239,25 +239,25 @@
     </div>
 
     <div class="bookmarks">
-      <a class="bookmark" href="https://www.google.com" target="_blank">
+      <a class="bookmark" href="https://www.google.com">
         <div class="bookmark-icon">
           <img src="https://raw.githubusercontent.com/TerminatedZ/terminatedz.github.io/main/google.webp" alt="Google">
         </div>
         <span class="bookmark-label">Google</span>
       </a>
-      <a class="bookmark" href="https://www.youtube.com" target="_blank">
+      <a class="bookmark" href="https://www.youtube.com">
         <div class="bookmark-icon">
           <img src="https://raw.githubusercontent.com/TerminatedZ/terminatedz.github.io/main/youtube.png" alt="YouTube">
         </div>
         <span class="bookmark-label">YouTube</span>
       </a>
-      <a class="bookmark" href="https://www.coolmathgames.com" target="_blank">
+      <a class="bookmark" href="https://www.coolmathgames.com">
         <div class="bookmark-icon">
           <img src="https://raw.githubusercontent.com/TerminatedZ/terminatedz.github.io/main/CMG.svg" alt="Cool Math Games">
         </div>
         <span class="bookmark-label">Cool Math Games</span>
       </a>
-      <a class="bookmark" href="https://quiz-30.github.io/" target="_blank">
+      <a class="bookmark" href="https://quiz-30.github.io/">
         <div class="bookmark-icon">
           <img src="https://raw.githubusercontent.com/TerminatedZ/terminatedz.github.io/main/drive.png" alt="Quiz-30">
         </div>
@@ -284,7 +284,7 @@
 
     function doSearch() {
       const q = document.getElementById('searchInput').value.trim();
-      if (q) window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank');
+      if (q) window.location.href = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
     }
 
     document.getElementById('searchBtn').addEventListener('click', doSearch);
