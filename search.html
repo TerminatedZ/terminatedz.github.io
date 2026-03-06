@@ -263,8 +263,16 @@
         </div>
         <span class="bookmark-label">Quiz-30</span>
       </a>
+      <div class="bookmark" id="unblockerBtn" style="cursor:pointer;">
+        <div class="bookmark-icon">
+          <img src="https://raw.githubusercontent.com/TerminatedZ/terminatedz.github.io/main/link.png" alt="Unblocker" style="filter:invert(1);" onerror="this.parentElement.innerHTML='🔗';">
+        </div>
+        <span class="bookmark-label">Unblocker</span>
+      </div>
     </div>
   </div>
+
+  <div id="toast" style="position:fixed;bottom:24px;left:24px;background:rgba(2,2,6,0.92);border:1.5px solid rgba(244,114,182,0.35);color:rgba(244,114,182,0.9);font-family:'Fredoka One',cursive;font-size:14px;letter-spacing:0.03em;padding:10px 18px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.6);backdrop-filter:blur(12px);z-index:9999;opacity:0;transform:translateY(10px);transition:opacity 0.3s,transform 0.3s;pointer-events:none;"></div>
 
   <script>
     const container = document.getElementById('particles');
@@ -290,6 +298,30 @@
     document.getElementById('searchBtn').addEventListener('click', doSearch);
     document.getElementById('searchInput').addEventListener('keydown', e => {
       if (e.key === 'Enter') doSearch();
+    });
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.opacity = '1';
+      t.style.transform = 'translateY(0)';
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translateY(10px)';
+      }, 3000);
+    }
+
+    document.getElementById('unblockerBtn').addEventListener('click', async () => {
+      try {
+        const res = await fetch('https://raw.githubusercontent.com/TerminatedZ/terminatedz.github.io/main/link.txt');
+        if (!res.ok) { showToast('Dead or No link detected'); return; }
+        const text = (await res.text()).trim();
+        if (!text || !text.startsWith('http')) { showToast('Dead or No link detected'); return; }
+        window.location.href = text;
+      } catch {
+        showToast('Dead or No link detected');
+      }
     });
   </script>
 </body>
