@@ -36,19 +36,7 @@
     .bookmark-icon img { width: 40px; height: 40px; object-fit: contain; }
     .bookmark-label { font-family: 'Fredoka One', cursive; font-size: 14px; color: rgba(180,190,210,0.65); letter-spacing: 0.03em; }
 
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 9998; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
-    .modal-overlay.show { opacity: 1; pointer-events: all; }
-    .modal { background: rgba(4,2,10,0.95); border: 1.5px solid rgba(123,47,247,0.3); border-radius: 20px; padding: 36px 40px; max-width: 360px; width: 90vw; display: flex; flex-direction: column; align-items: center; gap: 16px; box-shadow: 0 0 0 1px rgba(123,47,247,0.1), 0 20px 60px rgba(0,0,0,0.9); transform: translateY(12px); transition: transform 0.25s; }
-    .modal-overlay.show .modal { transform: translateY(0); }
-    .modal-icon { font-size: 34px; line-height: 1; }
-    .modal-title { font-family: 'Fredoka One', cursive; font-size: 22px; color: #fff; letter-spacing: 0.04em; text-shadow: 0 0 16px rgba(123,47,247,0.6); }
-    .modal-body { font-family: 'Fredoka One', cursive; font-size: 15px; color: rgba(180,160,230,0.7); text-align: center; letter-spacing: 0.02em; line-height: 1.6; }
-    .modal-buttons { display: flex; gap: 12px; margin-top: 6px; }
-    .modal-btn { padding: 10px 28px; border-radius: 50px; border: none; font-family: 'Fredoka One', cursive; font-size: 15px; letter-spacing: 0.03em; cursor: pointer; transition: all 0.2s; }
-    .modal-btn.confirm { background: linear-gradient(135deg, #7b2ff7, #f472b6); color: #fff; box-shadow: 0 2px 14px rgba(123,47,247,0.4); }
-    .modal-btn.confirm:hover { box-shadow: 0 4px 22px rgba(123,47,247,0.65); transform: translateY(-1px); }
-    .modal-btn.cancel { background: rgba(123,47,247,0.1); border: 1.5px solid rgba(123,47,247,0.25); color: rgba(180,160,230,0.7); }
-    .modal-btn.cancel:hover { background: rgba(123,47,247,0.2); color: #e2d4ff; }
+
   </style>
 </head>
 <body>
@@ -93,17 +81,6 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-      <div class="modal-icon">⚠️</div>
-      <div class="modal-title">Heads up</div>
-      <div class="modal-body">This site may be slower than regular browsing. Do you want to continue?</div>
-      <div class="modal-buttons">
-        <button class="modal-btn cancel" id="modalCancel">Cancel</button>
-        <button class="modal-btn confirm" id="modalConfirm">Let's go</button>
-      </div>
-    </div>
-  </div>
 
   <div id="toast" style="position:fixed;bottom:24px;left:24px;background:rgba(2,2,6,0.92);border:1.5px solid rgba(244,114,182,0.35);color:rgba(244,114,182,0.9);font-family:'Fredoka One',cursive;font-size:14px;letter-spacing:0.03em;padding:10px 18px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.6);backdrop-filter:blur(12px);z-index:9999;opacity:0;transform:translateY(10px);transition:opacity 0.3s,transform 0.3s;pointer-events:none;"></div>
 
@@ -133,35 +110,21 @@
       t._timer = setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(10px)'; }, 3000);
     }
 
-    let pendingUrl = null;
-
     document.getElementById('unblockerBtn').addEventListener('click', async () => {
       try {
         const res = await fetch('https://terminatedz.github.io/link.txt?t=' + Date.now(), {cache: 'no-store'});
         if (!res.ok) { showToast('Dead or No link detected'); return; }
         const text = (await res.text()).trim();
         if (!text || !text.startsWith('http')) { showToast('Dead or No link detected'); return; }
-        pendingUrl = text;
-        document.getElementById('modalOverlay').classList.add('show');
+        window.parent.postMessage({type:'shhhhhUnblocker', url: text}, '*');
       } catch {
         showToast('Dead or No link detected');
       }
     });
 
-    document.getElementById('modalCancel').addEventListener('click', () => {
-      pendingUrl = null;
-      document.getElementById('modalOverlay').classList.remove('show');
-    });
-
-    document.getElementById('modalConfirm').addEventListener('click', () => {
-      document.getElementById('modalOverlay').classList.remove('show');
-      if (pendingUrl) window.location.href = pendingUrl;
-    });
-
-    document.getElementById('modalOverlay').addEventListener('click', e => {
-      if (e.target === document.getElementById('modalOverlay')) {
-        pendingUrl = null;
-        document.getElementById('modalOverlay').classList.remove('show');
+    window.addEventListener('message', e => {
+      if (e.data && e.data.type === 'shhhhhUnblockerGo') {
+        window.location.href = e.data.url;
       }
     });
   </script>
