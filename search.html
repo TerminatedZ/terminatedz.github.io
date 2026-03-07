@@ -207,6 +207,123 @@
       color: rgba(180, 190, 210, 0.65);
       letter-spacing: 0.03em;
     }
+
+    /* ── Modal overlay ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 2, 6, 0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* ── Modal card ── */
+    .modal {
+      position: relative;
+      width: min(340px, 86vw);
+      background: rgba(8, 5, 18, 0.96);
+      border: 1px solid rgba(123,47,247,0.25);
+      border-radius: 22px;
+      padding: 28px 26px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      box-shadow:
+        0 20px 50px rgba(0,0,0,0.75),
+        0 0 60px rgba(123,47,247,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+      transform: translateY(16px) scale(0.97);
+      transition: transform 0.3s cubic-bezier(0.34,1.46,0.64,1), opacity 0.25s ease;
+      opacity: 0;
+    }
+
+    .modal-overlay.show .modal {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    .modal-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 20px;
+      color: #e8e4f4;
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+    }
+
+    .modal-body {
+      font-family: 'Fredoka One', cursive;
+      font-size: 13.5px;
+      color: rgba(160, 168, 200, 0.6);
+      letter-spacing: 0.02em;
+      line-height: 1.65;
+      margin-top: 2px;
+    }
+
+    .modal-body em {
+      font-style: normal;
+      color: rgba(244,114,182,0.75);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .btn-cancel {
+      flex: 1;
+      padding: 10px 14px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      color: rgba(160,170,210,0.55);
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, transform 0.15s;
+    }
+
+    .btn-cancel:hover {
+      background: rgba(255,255,255,0.07);
+      color: rgba(200,210,240,0.85);
+      transform: scale(1.02);
+    }
+
+    .btn-confirm {
+      flex: 1.5;
+      padding: 10px 14px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      color: #fff;
+      background: linear-gradient(135deg, #7b2ff7cc, #f472b6cc);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 2px 14px rgba(123,47,247,0.3);
+      transition: box-shadow 0.2s, transform 0.15s, filter 0.2s;
+    }
+
+    .btn-confirm:hover {
+      box-shadow: 0 4px 22px rgba(123,47,247,0.55);
+      filter: brightness(1.1);
+      transform: scale(1.03);
+    }
   </style>
 </head>
 <body>
@@ -272,9 +389,24 @@
     </div>
   </div>
 
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-title">unblocker may be a bit slow 🌚</div>
+      <div class="modal-body">
+        unblocker has alot of extra stuff to do to ensure avoidance against firewalls.
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="modalCancel">go back</button>
+        <button class="btn-confirm" id="modalConfirm">yeah, take me there</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" style="position:fixed;bottom:24px;left:24px;background:rgba(2,2,6,0.92);border:1.5px solid rgba(244,114,182,0.35);color:rgba(244,114,182,0.9);font-family:'Fredoka One',cursive;font-size:14px;letter-spacing:0.03em;padding:10px 18px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.6);backdrop-filter:blur(12px);z-index:9999;opacity:0;transform:translateY(10px);transition:opacity 0.3s,transform 0.3s;pointer-events:none;"></div>
 
   <script>
+    // Particles
     const container = document.getElementById('particles');
     for (let i = 0; i < 28; i++) {
       const p = document.createElement('div');
@@ -290,16 +422,17 @@
       container.appendChild(p);
     }
 
+    // Search
     function doSearch() {
       const q = document.getElementById('searchInput').value.trim();
       if (q) window.location.href = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
     }
-
     document.getElementById('searchBtn').addEventListener('click', doSearch);
     document.getElementById('searchInput').addEventListener('keydown', e => {
       if (e.key === 'Enter') doSearch();
     });
 
+    // Toast
     function showToast(msg) {
       const t = document.getElementById('toast');
       t.textContent = msg;
@@ -312,7 +445,31 @@
       }, 3000);
     }
 
-    document.getElementById('unblockerBtn').addEventListener('click', async () => {
+    // Modal logic
+    const overlay = document.getElementById('modalOverlay');
+
+    function openModal() {
+      overlay.classList.add('show');
+    }
+
+    function closeModal() {
+      overlay.classList.remove('show');
+    }
+
+    // Close on backdrop click
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) closeModal();
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    document.getElementById('modalCancel').addEventListener('click', closeModal);
+
+    document.getElementById('modalConfirm').addEventListener('click', async () => {
+      closeModal();
       try {
         const res = await fetch('https://terminatedz.github.io/link.txt?t=' + Date.now(), {cache: 'no-store'});
         if (!res.ok) { showToast('Dead or No link detected'); return; }
@@ -320,9 +477,11 @@
         if (!text || !text.startsWith('http')) { showToast('Dead or No link detected'); return; }
         window.location.href = text;
       } catch {
-        showToast('Dead or No link detected');
+        showToast('No Link Detected');
       }
     });
+
+    document.getElementById('unblockerBtn').addEventListener('click', openModal);
   </script>
 </body>
 </html>
